@@ -3,6 +3,7 @@ package be.vdab.restservice.controllers;
 import be.vdab.restservice.domain.Filiaal;
 import be.vdab.restservice.exceptions.FiliaalNietGevondenException;
 import be.vdab.restservice.services.FiliaalService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
@@ -33,6 +34,7 @@ public class FiliaalController {
         this.links = links.forType(Filiaal.class, Filiaal::getId);
     }
 
+    @Operation(summary = "Een filiaal zoeken op id")
     //data returnen kan ook, vanwege de @RestController converteert Spring de returnwaarde naar XML of JSON
     @GetMapping("{id}")
     //er zijn verschillende manieren om data terug te geven in je response aan de client:
@@ -55,8 +57,10 @@ public class FiliaalController {
     void filiaalNietGevonden() {
     }
 
+    @Operation(summary = "Alle filialen zoeken")
     @GetMapping
     //CollectionModel = verzameling van EntityModel objecten, EntityModel = object/record en hyperlink(s) in JSON/XML formaat -> FiliaalIdNaam + hyperlink
+    //EntityModel is nodig om ook per FiliaalIdNaam de bijbehorende hyperlink te tonen
     CollectionModel<EntityModel<FiliaalIdNaam>> findAll() {
         return CollectionModel.of(
                 filiaalService.findAll().stream()
@@ -68,11 +72,13 @@ public class FiliaalController {
                 links.linkToCollectionResource());
     }
 
+    @Operation(summary = "Een filiaal verwijderen")
     @DeleteMapping("{id}")
     void delete(@PathVariable long id) {
         filiaalService.delete(id);
     }
 
+    @Operation(summary = "Een filiaal toevoegen")
     @PostMapping
     //status code 201 (Created)
     @ResponseStatus(HttpStatus.CREATED)
@@ -102,6 +108,7 @@ public class FiliaalController {
                 .collect(Collectors.toMap(FieldError::getField, FieldError::getDefaultMessage));
     }
 
+    @Operation(summary = "Een filiaal wijzigen")
     @PutMapping("{id}")
     void put(@PathVariable long id, @RequestBody @Valid Filiaal filiaal) {
         //filiaal bevat reeds naam, gemeente en omzet
